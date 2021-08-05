@@ -9,12 +9,16 @@ namespace RestaurantOrder.UnitTest
 {
     public class OrderUnitTest
     {
-        OrderDataMock OrderData;
+        private OrderDataMock OrderData;
+        private MenuSelector selector;
+        private MenuGrouper grouper;
 
         [SetUp]
         public void Setup()
         {
             OrderData = new OrderDataMock();
+            selector = new MenuSelector();
+            grouper = new MenuGrouper();
         }
 
         [Test]
@@ -23,7 +27,7 @@ namespace RestaurantOrder.UnitTest
             var request = new OrderRequest { DayTime = "morning", DishType = new List<int> { 1, 2, 3 } };
             var expectedResult = new List<string> { "eggs", "Toast", "coffee" };
             OrderData.GetMenu(CreateMenuDataMockResult(request));
-            var business = new OrderBusiness(OrderData.Object);
+            var business = new OrderBusiness(OrderData.Object, selector, grouper);
             var result = business.ProcessOrder(request);
             var valuecheck1 = result.Except(expectedResult).ToList();
             var valuecheck2 = expectedResult.Except(result).ToList();
@@ -36,7 +40,7 @@ namespace RestaurantOrder.UnitTest
             var request = new OrderRequest { DayTime = "night", DishType = new List<int> { 1, 2, 3, 4 } };
             var expectedResult = new List<string> { "steak", "potato", "wine", "cake" };
             OrderData.GetMenu(CreateMenuDataMockResult(request));
-            var business = new OrderBusiness(OrderData.Object);
+            var business = new OrderBusiness(OrderData.Object, selector, grouper);
             var result = business.ProcessOrder(request);
             var valuecheck1 = result.Except(expectedResult).ToList();
             var valuecheck2 = expectedResult.Except(result).ToList();
@@ -49,7 +53,7 @@ namespace RestaurantOrder.UnitTest
             var request = new OrderRequest { DayTime = "morning", DishType = new List<int> { 1, 2, 3, 4 } };
             var expectedResult = new List<string> { "eggs", "Toast", "coffee", "error" };
             OrderData.GetMenu(CreateMenuDataMockResult(request));
-            var business = new OrderBusiness(OrderData.Object);
+            var business = new OrderBusiness(OrderData.Object, selector, grouper);
             var result = business.ProcessOrder(request);
             var valuecheck1 = result.Except(expectedResult).ToList();
             var valuecheck2 = expectedResult.Except(result).ToList();
@@ -62,7 +66,7 @@ namespace RestaurantOrder.UnitTest
             var request = new OrderRequest { DayTime = "night", DishType = new List<int> { 1, 2, 3, 4, 5 } };
             var expectedResult = new List<string> { "steak", "potato", "wine", "cake", "error" };
             OrderData.GetMenu(CreateMenuDataMockResult(request));
-            var business = new OrderBusiness(OrderData.Object);
+            var business = new OrderBusiness(OrderData.Object, selector, grouper);
             var result = business.ProcessOrder(request);
             var valuecheck1 = result.Except(expectedResult).ToList();
             var valuecheck2 = expectedResult.Except(result).ToList();
@@ -75,7 +79,7 @@ namespace RestaurantOrder.UnitTest
             var request = new OrderRequest { DayTime = "night", DishType = new List<int> { 1, 2, 2, 3, 4, 5 } };
             var expectedResult = new List<string> { "steak", "potato(x2)", "wine", "cake", "error" };
             OrderData.GetMenu(CreateMenuDataMockResult(request));
-            var business = new OrderBusiness(OrderData.Object);
+            var business = new OrderBusiness(OrderData.Object, selector, grouper);
             var result = business.ProcessOrder(request);
             var valuecheck1 = result.Except(expectedResult).ToList();
             var valuecheck2 = expectedResult.Except(result).ToList();
@@ -88,7 +92,7 @@ namespace RestaurantOrder.UnitTest
             var request = new OrderRequest { DayTime = "morning", DishType = new List<int> { 4, 3, 2, 1 } };
             var expectedResult = new List<string> { "eggs", "Toast", "coffee", "error" };
             OrderData.GetMenu(CreateMenuDataMockResult(request));
-            var business = new OrderBusiness(OrderData.Object);
+            var business = new OrderBusiness(OrderData.Object, selector, grouper);
             var result = business.ProcessOrder(request);
             var valuecheck1 = result.Except(expectedResult).ToList();
             var valuecheck2 = expectedResult.Except(result).ToList();

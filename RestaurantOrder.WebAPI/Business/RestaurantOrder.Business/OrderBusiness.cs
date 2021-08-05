@@ -2,7 +2,6 @@
 using RestaurantOrder.Entities;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace RestaurantOrder.Business
 {
@@ -14,6 +13,8 @@ namespace RestaurantOrder.Business
 
         #region Fields
         private IOrderData orderData;
+        private MenuSelector selector;
+        private MenuGrouper grouper;
         #endregion
 
         #region Constructor
@@ -21,9 +22,13 @@ namespace RestaurantOrder.Business
         /// Creates a new instance of the <see cref="OrderBusiness"/>
         /// </summary>
         /// <param name="orderData">The data object to query the menu.</param>
-        public OrderBusiness(IOrderData orderData)
+        /// <param name="selector">The menu selector.</param>
+        /// <param name="grouper">The menu grouper.</param>
+        public OrderBusiness(IOrderData orderData, MenuSelector selector, MenuGrouper grouper)
         {
             this.orderData = orderData ?? throw new ArgumentNullException(nameof(orderData));
+            this.selector = selector ?? throw new ArgumentNullException(nameof(selector));
+            this.grouper = grouper ?? throw new ArgumentNullException(nameof(grouper));
         }
         #endregion
 
@@ -32,33 +37,14 @@ namespace RestaurantOrder.Business
         /// Handles the order request.
         /// </summary>
         /// <param name="request">The request to process.</param>
-        /// <returns>Returns a <see cref="List{T}"/> with the results.</returns>
+        /// <returns>Returns a <see cref="IEnumerable{T}"/> with the results.</returns>
         public IEnumerable<string> ProcessOrder(OrderRequest request)
         {
-            var order = new List<Menu>();
             var menuResult = orderData.GetMenu(request.DayTime, request.DishType);
 
-            foreach (var dishTypeId in request.DishType)
-            {
-                Menu menu;
-                if (menuResult.Any(m => m.DishTypeId == dishTypeId))
-                    menu = menuResult.First(m => m.DishTypeId == dishTypeId);
-                else
-                    menu = new Menu { DishTypeId = dishTypeId, AllowMultipleOrders = false, Dish = "error" };
+            var order = selector.SelectMenu(request.DishType, menuResult);
 
-                if (menu.AllowMultipleOrders || !order.Any(o => o.DishTypeId == menu.DishTypeId))
-                    order.Add(menu);
-            }
-
-            var result = new List<string>();
-            var grouping = order.OrderBy(r => r.DishTypeId).GroupBy(g => g.Dish);
-            foreach (var item in grouping)
-            {
-                if (item.Count() > 1)
-                    result.Add($"{item.Key}(x{item.Count()})");
-                else
-                    result.Add(item.Key);
-            }
+            var result = grouper.GroupMenu(order);
 
             return result;
         }

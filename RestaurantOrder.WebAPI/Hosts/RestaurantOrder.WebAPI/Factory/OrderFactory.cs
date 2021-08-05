@@ -20,7 +20,9 @@ namespace RestaurantOrder.WebAPI.Factory
         {
             var connectionString = ConfigurationExtensions.GetConnectionString(configuration, "DefaultConnection");
             var orderData = new OrderData(connectionString);
-            return new OrderBusiness(orderData);
+            var selector = new MenuSelector();
+            var grouper = new MenuGrouper();
+            return new OrderBusiness(orderData, selector, grouper);
         }
         #endregion
 
