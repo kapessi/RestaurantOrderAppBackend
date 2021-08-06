@@ -8,7 +8,7 @@ using System.Collections.Generic;
 
 namespace RestaurantOrder.WebAPI.Controllers
 {
-    [Route("api/order")]
+    [Route("api/[Controller]")]
     [ApiController]
     public class OrderController : ControllerBase
     {
@@ -39,7 +39,7 @@ namespace RestaurantOrder.WebAPI.Controllers
         /// <returns>Returns a <see cref="List{T}"/> with the results.</returns>
         [HttpGet]
         [Route("get")]
-        public IEnumerable<string> Get([FromBody] OrderRequest request)
+        public IEnumerable<string> Get([FromQuery] OrderRequest request)
         {
             try
             {
